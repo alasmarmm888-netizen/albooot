@@ -1,0 +1,16 @@
+# ÇÓÊÎÏÇã Python 3.11 ßÕæÑÉ ÃÓÇÓíÉ
+FROM python:3.11-slim
+
+# ÊÍÏíÏ ãÌáÏ ÇáÚãá ÏÇÎá ÇáÍÇæíÉ
+WORKDIR /app
+
+# äÓÎ ãáİ ÇáãÊØáÈÇÊ æÊËÈíÊåÇ
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# äÓÎ ÌãíÚ ãáİÇÊ ÇáãÔÑæÚ
+COPY . .
+
+# ÃãÑ ÇáÊÔÛíá ÚäÏ ÈÏÁ ÇáÍÇæíÉ
+CMD ["python", "-u", "app/main.py"]
