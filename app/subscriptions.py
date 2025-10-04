@@ -1,58 +1,35 @@
-# app/subscriptions.py
-from datetime import datetime, timedelta
-from app.config import SUBSCRIPTION_PLANS, WALLET_ADDRESS
-from app.admin import send_admin_notification  # فقط دالة الإشعارات
+from datetime import date, datetime
+from app.database import update_user_balance, add_transaction
+from app.admin import send_admin_notification  # استدعاء دالة الإشعارات من admin.py لتجنب circular import
 
-# ====================== الاشتراكات ======================
-user_subscriptions = {}  # لتخزين الاشتراكات مؤقتاً (يمكن ربطها بقاعدة البيانات لاحقاً)
+# خطط الاشتراك
+SUBSCRIPTION_PLANS = {
+    "basic": 10,
+    "premium": 25,
+    "vip": 50
+}
 
-def handle_subscription(user_id, plan_key):
-    """
-    معالجة الاشتراك: إضافة أو تجديد باقة
-    """
-    if plan_key not in SUBSCRIPTION_PLANS:
-        return f"❌ الباقة {plan_key} غير موجودة."
+WALLET_ADDRESS = ""  # ضع هنا رمز المحفظة إذا لم يكن في env
 
-    plan = SUBSCRIPTION_PLANS[plan_key]
-    now = datetime.now()
-    expiry_date = now + timedelta(days=plan["duration"])
+def handle_subscription(user_id, plan):
+    if plan not in SUBSCRIPTION_PLANS:
+        return False, "الخطة غير موجودة"
+    
+    amount = SUBSCRIPTION_PLANS[plan]
+    update_user_balance(user_id, -amount)
+    add_transaction(user_id, "subscription", amount, status="completed")
 
-    user_subscriptions[user_id] = {
-        "plan": plan_key,
-        "expiry": expiry_date
-    }
-
-    # إرسال إشعار للأدمن
-    send_admin_notification(f"🎉 المستخدم {user_id} اشترك في باقة {plan['name']} بسعر {plan['price']}$")
-
-    return f"✅ تم تفعيل باقة {plan['name']} حتى {expiry_date.strftime('%d/%m/%Y')}"
+    # إشعار الإدارة
+    send_admin_notification(f"المستخدم {user_id} اشترك في خطة {plan} مقابل {amount} دولار")
+    return True, f"تم الاشتراك في خطة {plan} بنجاح"
 
 def show_subscription_plans():
-    """
-    عرض جميع الباقات المتاحة
-    """
-    message = "📦 باقات الاشتراك المتاحة:\n\n"
-    for key, plan in SUBSCRIPTION_PLANS.items():
-        message += f"{plan['name']} - {plan['price']}$ - لمدة {plan['duration']} يوم\n"
-    return message
+    return "\n".join([f"{plan}: ${price}" for plan, price in SUBSCRIPTION_PLANS.items()])
 
-def confirm_payment(user_id, plan_key, amount_paid):
-    """
-    تأكيد الدفع والتحقق من صحة المبلغ
-    """
-    if plan_key not in SUBSCRIPTION_PLANS:
-        return False, "الباقة غير موجودة."
-    
-    plan = SUBSCRIPTION_PLANS[plan_key]
-    if amount_paid < plan["price"]:
-        return False, f"المبلغ غير كافي. يجب دفع {plan['price']}$."
-    
-    # تفعيل الاشتراك
-    handle_subscription(user_id, plan_key)
-    return True, f"✅ تم تفعيل باقة {plan['name']} بنجاح."
+def confirm_payment(user_id, plan):
+    # هنا يمكن إضافة منطق تأكيد الدفع إذا كان مرتبط بمنصة دفع
+    pass
 
 def show_withdraw_menu(user_id):
-    """
-    مثال لإظهار قائمة السحب
-    """
-    return f"💰 محفظتك: {WALLET_ADDRESS}\nلا يمكن سحب أقل من 5$."
+    # مثال لإظهار رصيد المستخدم مع خيار السحب
+    return f"رصيدك الحالي: {get_user_balance(user_id)}\nاختر المبلغ للسحب."
