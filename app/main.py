@@ -18,7 +18,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"لقد أرسلت: {update.message.text}")
 
 # إنشاء التطبيق
-app = ApplicationBuilder().token("BOT_TOKEN").build()
+app = ApplicationBuilder().token("7566859808:AAHI0WzczJ2nDmuzRI-F-WzxyUS9SglkvwE").build()
 
 # إضافة الـ handlers
 app.add_handler(CommandHandler("start", start))
@@ -27,4 +27,5 @@ app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), echo))
 # تشغيل البوت
 if __name__ == "__main__":
     app.run_polling()
+
 
