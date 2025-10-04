@@ -25,5 +25,5 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), echo))
 
 # تشغيل البوت
-if name == "main":
+if name == "__main__":
     app.run_polling()
