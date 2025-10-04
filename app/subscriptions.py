@@ -1,59 +1,60 @@
-import sqlite3
-from datetime import datetime
-from app.database import get_user_data, update_user_balance, add_transaction
-from app.admin import send_admin_notification  # استدعاء دالة الإشعارات من admin.py لتجنب circular import
+# app/subscriptions.py
+from datetime import datetime, timedelta
+from app.database import add_transaction, update_user_balance
+from app.config import SUBSCRIPTION_PLANS, WALLET_ADDRESS
+from app.admin import send_admin_notification
 
-# مثال خطط الاشتراك
-SUBSCRIPTION_PLANS = {
-    "basic": {"name": "Basic", "price": 10, "days": 7},
-    "premium": {"name": "Premium", "price": 30, "days": 30},
-}
 
-# ==================== معالجة الاشتراك ====================
-async def handle_subscription(update, context):
-    query = update.callback_query
-    data = query.data.split("_")
-    plan_id = data[1]
-    user_id = query.from_user.id
+def handle_subscription(user_id, plan_key):
+    """معالجة طلب الاشتراك"""
+    if plan_key not in SUBSCRIPTION_PLANS:
+        return None
 
-    plan = SUBSCRIPTION_PLANS.get(plan_id)
-    if not plan:
-        await query.answer("❌ خطة غير موجودة")
-        return
+    plan = SUBSCRIPTION_PLANS[plan_key]
+    price = plan["price"]
+    duration = plan["duration_days"]
 
-    # إضافة الرصيد للمستخدم
-    update_user_balance(user_id, plan["price"])
-    add_transaction(user_id, "deposit", plan["price"], "completed")
+    # إضافة معاملة جديدة
+    add_transaction(user_id, "subscription", price, "pending")
 
-    await query.answer(f"✅ تم تفعيل اشتراكك بالخطة {plan['name']}")
+    # إشعار الأدمن
+    send_admin_notification(
+        f"🔔 مستخدم {user_id} طلب الاشتراك في باقة {plan_key}\n"
+        f"المبلغ المطلوب: {price} USDT"
+    )
 
-    # إرسال إشعار للأدمن
-    await send_admin_notification(f"مستخدم {user_id} اشترك في خطة {plan['name']}")
+    return plan
 
-# ==================== تأكيد الدفع ====================
-async def confirm_payment(update, context):
-    query = update.callback_query
-    await query.answer("✅ تم تأكيد الدفع")
-    # يمكنك إضافة أي منطق إضافي لتأكيد الدفع
 
-# ==================== عرض الخطط ====================
-async def show_subscription_plans(update, context):
-    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+def confirm_payment(user_id, plan_key):
+    """تأكيد الدفع وتفعيل الاشتراك"""
+    if plan_key not in SUBSCRIPTION_PLANS:
+        return False
 
-    keyboard = [
-        [InlineKeyboardButton(f"{plan['name']} - {plan['price']}$", callback_data=f"subscribe_{plan_id}")]
-        for plan_id, plan in SUBSCRIPTION_PLANS.items()
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("اختر خطة الاشتراك:", reply_markup=reply_markup)
+    plan = SUBSCRIPTION_PLANS[plan_key]
+    price = plan["price"]
+    duration = plan["duration_days"]
 
-# ==================== عرض قائمة السحب ====================
-async def show_withdraw_menu(update, context):
-    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+    # تحديث الرصيد
+    update_user_balance(user_id, -price)
 
-    keyboard = [
-        [InlineKeyboardButton("💵 سحب الأموال", callback_data="withdraw")],
-        [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("قائمة السحب:", reply_markup=reply_markup)
+    # إشعار الأدمن
+    send_admin_notification(
+        f"✅ تم تأكيد اشتراك المستخدم {user_id} في {plan_key} لمدة {duration} يوم"
+    )
+
+    return True
+
+
+def show_subscription_plans():
+    """إرجاع قائمة الباقات"""
+    text = "📌 خطط الاشتراك المتاحة:\n\n"
+    for key, data in SUBSCRIPTION_PLANS.items():
+        text += f"• {key.capitalize()} → {data['price']} USDT / {data['duration_days']} يوم\n"
+    text += f"\n💳 ادفع على المحفظة التالية: \n`{WALLET_ADDRESS}`"
+    return text
+
+
+def show_withdraw_menu():
+    """إظهار رسالة السحب"""
+    return "💰 لطلب سحب الرصيد، الرجاء إرسال عنوان محفظتك والمبلغ المطلوب."
