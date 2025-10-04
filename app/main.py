@@ -1,7 +1,13 @@
 # app/main.py
+import os
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
-import logging
+
+# استيراد handlers من الملفات الأخرى
+from handlers import start_handler, echo_handler
+from subscriptions import subscribe_handler, unsubscribe_handler
+from admin import admin_command_handler
 
 # إعداد تسجيل الأخطاء
 logging.basicConfig(
@@ -9,23 +15,28 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# دالة /start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("مرحبًا! أنا بوت تيليجرام الخاص بك.")
+# إنشاء التطبيق مع التوكن من environment
+TOKEN = os.environ.get("7566859808:AAHI0WzczJ2nDmuzRI-F-WzxyUS9SglkvwE")
+if not TOKEN:
+    raise ValueError("BOT_TOKEN غير موجود في environment variables")
 
-# دالة لمعالجة الرسائل النصية
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"لقد أرسلت: {update.message.text}")
-
-# إنشاء التطبيق
-app = ApplicationBuilder().token("7566859808:AAHI0WzczJ2nDmuzRI-F-WzxyUS9SglkvwE").build()
+app = ApplicationBuilder().token(TOKEN).build()
 
 # إضافة الـ handlers
-app.add_handler(CommandHandler("start", start))
-app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), echo))
+app.add_handler(start_handler)
+app.add_handler(echo_handler)
+app.add_handler(subscribe_handler)
+app.add_handler(unsubscribe_handler)
+app.add_handler(admin_command_handler)
+
+# Optional: handler لأي رسالة لم يتم التعرف عليها
+async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("عذرًا، لا أفهم هذا الأمر.")
+
+app.add_handler(MessageHandler(filters.COMMAND, unknown))
 
 # تشغيل البوت
-if __name__ == "__main__":
+if name == "main":
+    logging.info("البوت بدأ التشغيل...")
     app.run_polling()
-
 
