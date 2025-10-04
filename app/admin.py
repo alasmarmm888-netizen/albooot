@@ -1,15 +1,23 @@
 # app/admin.py
+import os
+import logging
 from telegram import Bot
-from app.config import BOT_TOKEN, ADMIN_ID
+from app.config import ADMIN_BOT_TOKEN, ADMIN_CHAT_ID
 
-# بوت للتواصل المباشر مع الأدمن
-bot = Bot(token=BOT_TOKEN)
+# إعداد البوت الخاص بالإدارة
+admin_bot = Bot(token=ADMIN_BOT_TOKEN)
 
-
+# ============= إرسال إشعار للإدمن =============
 def send_admin_notification(message: str):
-    """إرسال إشعار إلى الأدمن"""
+    """
+    إرسال رسالة إشعار إلى بوت الأدمن
+    """
     try:
-        if ADMIN_ID != 0:
-            bot.send_message(chat_id=ADMIN_ID, text=message)
+        admin_bot.send_message(
+            chat_id=ADMIN_CHAT_ID,
+            text=message,
+            parse_mode="Markdown"
+        )
+        logging.info("تم إرسال إشعار إلى الأدمن بنجاح.")
     except Exception as e:
-        print(f"❌ فشل إرسال رسالة إلى الأدمن: {e}")
+        logging.error(f"فشل إرسال إشعار إلى الأدمن: {e}")
