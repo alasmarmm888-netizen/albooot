@@ -1,76 +1,58 @@
 # app/subscriptions.py
 from datetime import datetime, timedelta
-from telegram import Update
-from telegram.ext import CallbackContext
 from app.config import SUBSCRIPTION_PLANS, WALLET_ADDRESS
-from app.database import add_subscription, get_user_data, update_subscription_status
-from app.admin import send_admin_notification
+from app.admin import send_admin_notification  # فقط دالة الإشعارات
 
-# ============= بدء الاشتراك =============
-def start_subscription(user_id: int, plan: str):
+# ====================== الاشتراكات ======================
+user_subscriptions = {}  # لتخزين الاشتراكات مؤقتاً (يمكن ربطها بقاعدة البيانات لاحقاً)
+
+def handle_subscription(user_id, plan_key):
     """
-    بدء عملية الاشتراك - يسجل بيانات الاشتراك ويطلب الدفع
+    معالجة الاشتراك: إضافة أو تجديد باقة
     """
-    if plan not in SUBSCRIPTION_PLANS:
-        return False
+    if plan_key not in SUBSCRIPTION_PLANS:
+        return f"❌ الباقة {plan_key} غير موجودة."
 
-    plan_data = SUBSCRIPTION_PLANS[plan]
-    amount = plan_data["price"]
-    duration_days = plan_data["duration_days"]
+    plan = SUBSCRIPTION_PLANS[plan_key]
+    now = datetime.now()
+    expiry_date = now + timedelta(days=plan["duration"])
 
-    # تسجيل الاشتراك كـ pending في قاعدة البيانات
-    add_subscription(user_id, plan, amount, duration_days, status="pending")
+    user_subscriptions[user_id] = {
+        "plan": plan_key,
+        "expiry": expiry_date
+    }
 
-    # إشعار الأدمن
-    send_admin_notification(
-        f"📢 مستخدم جديد بدأ عملية اشتراك:\n"
-        f"🆔 ID: {user_id}\n"
-        f"💳 الخطة: {plan.upper()}\n"
-        f"💰 السعر: {amount} USDT\n"
-        f"⌛ بانتظار الدفع..."
-    )
-    return True
+    # إرسال إشعار للأدمن
+    send_admin_notification(f"🎉 المستخدم {user_id} اشترك في باقة {plan['name']} بسعر {plan['price']}$")
 
-# ============= تأكيد الدفع =============
-def confirm_payment(user_id: int, tx_hash: str):
+    return f"✅ تم تفعيل باقة {plan['name']} حتى {expiry_date.strftime('%d/%m/%Y')}"
+
+def show_subscription_plans():
     """
-    تأكيد الدفع يدويًا (بعد التحقق من المعاملة من قبل الأدمن)
+    عرض جميع الباقات المتاحة
     """
-    user_data = get_user_data(user_id)
-    if not user_data:
-        return False
+    message = "📦 باقات الاشتراك المتاحة:\n\n"
+    for key, plan in SUBSCRIPTION_PLANS.items():
+        message += f"{plan['name']} - {plan['price']}$ - لمدة {plan['duration']} يوم\n"
+    return message
 
-    # تحديث الاشتراك إلى active
-    update_subscription_status(user_id, status="active")
-
-    # إشعار الأدمن
-    send_admin_notification(
-        f"✅ تم تأكيد الدفع:\n"
-        f"🆔 ID: {user_id}\n"
-        f"📛 الاسم: {user_data.get('full_name', 'غير معروف')}\n"
-        f"🔗 Tx: {tx_hash}"
-    )
-    return True
-
-# ============= عرض الباقات =============
-def show_subscription_plans(update: Update, context: CallbackContext):
+def confirm_payment(user_id, plan_key, amount_paid):
     """
-    إرسال قائمة الباقات المتاحة للمستخدم
+    تأكيد الدفع والتحقق من صحة المبلغ
     """
-    text = "💳 خطط الاشتراك المتاحة:\n\n"
-    for plan, details in SUBSCRIPTION_PLANS.items():
-        text += f"🔹 {plan.upper()}: {details['price']} USDT ({details['duration_days']} يوم)\n"
+    if plan_key not in SUBSCRIPTION_PLANS:
+        return False, "الباقة غير موجودة."
+    
+    plan = SUBSCRIPTION_PLANS[plan_key]
+    if amount_paid < plan["price"]:
+        return False, f"المبلغ غير كافي. يجب دفع {plan['price']}$."
+    
+    # تفعيل الاشتراك
+    handle_subscription(user_id, plan_key)
+    return True, f"✅ تم تفعيل باقة {plan['name']} بنجاح."
 
-    text += f"\n🚀 لإكمال الدفع، أرسل المبلغ إلى المحفظة التالية:\n`{WALLET_ADDRESS}`"
-
-    update.message.reply_text(text, parse_mode="Markdown")
-
-# ============= قائمة السحب (اختياري) =============
-def show_withdraw_menu(update: Update, context: CallbackContext):
+def show_withdraw_menu(user_id):
     """
-    قائمة السحب (إذا فيه أرباح أو نظام ربح)
+    مثال لإظهار قائمة السحب
     """
-    update.message.reply_text(
-        "💸 للسحب، تواصل مع الدعم.\n"
-        "📩 سيتم تحويل المبلغ بعد المراجعة."
-    )
+    return f"💰 محفظتك: {WALLET_ADDRESS}\nلا يمكن سحب أقل من 5$."
