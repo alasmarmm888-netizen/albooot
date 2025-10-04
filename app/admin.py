@@ -1,9 +1,9 @@
 import os
 from telegram import Bot
 
-ADMIN_BOT_TOKEN = os.getenv("ADMIN_BOT_TOKEN")
-ARCHIVE_CHANNEL_ID = os.getenv("ARCHIVE_CHANNEL_ID")
-ERROR_CHANNEL_ID = os.getenv("ERROR_CHANNEL_ID")
+ADMIN_BOT_TOKEN = os.getenv("8074752128:AAHkPJ1Acsk8i3l7X-IaeL2FhWGmYIbZzlg")
+ARCHIVE_CHANNEL_ID = os.getenv("-1003178411340")
+ERROR_CHANNEL_ID = os.getenv("-1003091305351")
 
 admin_bot = Bot(token=ADMIN_BOT_TOKEN)
 
@@ -21,3 +21,4 @@ def send_admin_notification(message):
                 admin_bot.send_message(chat_id=ERROR_CHANNEL_ID, text=f"خطأ: {e}")
             except:
                 pass
+
