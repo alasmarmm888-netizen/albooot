@@ -24,8 +24,6 @@ app = ApplicationBuilder().token("7566859808:AAHI0WzczJ2nDmuzRI-F-WzxyUS9SglkvwE
 app.add_handler(CommandHandler("start", start))
 app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), echo))
 
-
 # تشغيل البوت
 if name == "main":
-    logging.info("البوت بدأ التشغيل...")
     app.run_polling()
