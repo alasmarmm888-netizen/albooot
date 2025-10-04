@@ -2,14 +2,21 @@
 import os
 from dotenv import load_dotenv
 
-# تحميل المتغيرات من .env
+# تحميل متغيرات البيئة من ملف .env
 load_dotenv()
 
-# بيانات التوكنات
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))  # ID الأدمن (تضعه في ملف .env)
+# توكنات البوتات
+BOT_TOKEN = os.getenv("BOT_TOKEN")              # البوت الرئيسي
+ADMIN_BOT_TOKEN = os.getenv("ADMIN_BOT_TOKEN")  # بوت الإدارة
 
-# عنوان المحفظة
+# معرف الأدمن
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
+
+# قنوات
+ARCHIVE_CHANNEL_ID = int(os.getenv("ARCHIVE_CHANNEL_ID", "0"))
+ERROR_CHANNEL_ID = int(os.getenv("ERROR_CHANNEL_ID", "0"))
+
+# المحفظة
 WALLET_ADDRESS = os.getenv("WALLET_ADDRESS", "USDT-ADDRESS-HERE")
 
 # خطط الاشتراك
