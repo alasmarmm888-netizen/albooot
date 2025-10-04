@@ -9,7 +9,7 @@ SUBSCRIPTION_PLANS = {
     "vip": 50
 }
 
-WALLET_ADDRESS = ""  # ضع هنا رمز المحفظة إذا لم يكن في env
+WALLET_ADDRESS = "WALLET_ADDRESS"  # ضع هنا رمز المحفظة إذا لم يكن في env
 
 def handle_subscription(user_id, plan):
     if plan not in SUBSCRIPTION_PLANS:
@@ -33,3 +33,4 @@ def confirm_payment(user_id, plan):
 def show_withdraw_menu(user_id):
     # مثال لإظهار رصيد المستخدم مع خيار السحب
     return f"رصيدك الحالي: {get_user_balance(user_id)}\nاختر المبلغ للسحب."
+
