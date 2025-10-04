@@ -6,22 +6,22 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ========== إعدادات البوت الرئيسي ==========
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = os.getenv("7566859808:AAHI0WzczJ2nDmuzRI-F-WzxyUS9SglkvwE")
 if not BOT_TOKEN:
     raise ValueError("❌ BOT_TOKEN غير موجود في ملف .env")
 
 # ========== إعدادات بوت الأدمن ==========
-ADMIN_BOT_TOKEN = os.getenv("ADMIN_BOT_TOKEN")
+ADMIN_BOT_TOKEN = os.getenv("8074752128:AAHkPJ1Acsk8i3l7X-IaeL2FhWGmYIbZzlg")
 if not ADMIN_BOT_TOKEN:
     raise ValueError("❌ ADMIN_BOT_TOKEN غير موجود في ملف .env")
 
-ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID")
+ADMIN_CHAT_ID = os.getenv("-1003178411340")
 if not ADMIN_CHAT_ID:
     raise ValueError("❌ ADMIN_CHAT_ID غير موجود في ملف .env")
 
 # ========== إعدادات القنوات ==========
-ARCHIVE_CHANNEL_ID = os.getenv("ARCHIVE_CHANNEL_ID")  # قناة الأرشيف
-ERROR_CHANNEL_ID = os.getenv("ERROR_CHANNEL_ID")      # قناة الأخطاء
+ARCHIVE_CHANNEL_ID = os.getenv("-1003178411340")  # قناة الأرشيف
+ERROR_CHANNEL_ID = os.getenv("-1003091305351")      # قناة الأخطاء
 
 if not ARCHIVE_CHANNEL_ID:
     raise ValueError("❌ ARCHIVE_CHANNEL_ID غير موجود في ملف .env")
