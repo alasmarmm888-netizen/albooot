@@ -825,34 +825,38 @@ def main():
     print("   🚨 الأخطاء:", ERROR_CHANNEL)
     print("   💳 المحفظة:", WALLET_ADDRESS[:10] + "...")
     
-    # تشغيل البوتات
-    try:
-        # تشغيل البوت الرئيسي في thread منفصل
-        def run_main_bot():
-            main_app.run_polling()
-        
-        # تشغيل بوت الإدارة في thread منفصل  
-        def run_admin_bot():
-            admin_app.run_polling()
-        
-        main_thread = Thread(target=run_main_bot, daemon=True)
-        admin_thread = Thread(target=run_admin_bot, daemon=True)
-        
-        main_thread.start()
-        admin_thread.start()
-        
-        print("🎉 جميع البوتات شغالة الآن!")
-        print("💡 البوت الرئيسي: للاستخدام العام")
-        print("🛠️ بوت الإدارة: للتحكم والإدارة")
-        
-        # إبقاء البرنامج شغال
-        while True:
-            time.sleep(1)
-            
-    except KeyboardInterrupt:
-        print("⏹️ إيقاف النظام...")
-    except Exception as e:
-        print(f"❌ خطأ في التشغيل: {e}")
+   # تشغيل البوتات
+try:
+    # تشغيل البوت الرئيسي في thread منفصل
+    def run_main_bot():
+        loop = asyncio.new_event_loop()  # إنشاء loop جديد للـ thread
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(main_app.run_polling())
+
+    # تشغيل بوت الإدارة في thread منفصل  
+    def run_admin_bot():
+        loop = asyncio.new_event_loop()  # إنشاء loop جديد للـ thread
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(admin_app.run_polling())
+
+    main_thread = Thread(target=run_main_bot, daemon=True)
+    admin_thread = Thread(target=run_admin_bot, daemon=True)
+
+    main_thread.start()
+    admin_thread.start()
+
+    print("🎉 جميع البوتات شغالة الآن!")
+    print("💡 البوت الرئيسي: للاستخدام العام")
+    print("🛠️ بوت الإدارة: للتحكم والإدارة")
+
+    # إبقاء البرنامج شغال
+    while True:
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    print("⏹️ إيقاف النظام...")
+except Exception as e:
+    print(f"❌ خطأ في التشغيل: {e}")
 
 # ==================== التشغيل ====================
 if __name__ == '__main__':
