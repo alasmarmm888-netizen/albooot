@@ -18,6 +18,12 @@ ARCHIVE_CHANNEL = "-1003178411340"
 ERROR_CHANNEL = "-1003091305351"
 WALLET_ADDRESS = "TYy5CnBE3kJ2b7oom3vPhey8PX5mi7GQhd"
 
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+
+# تعريف البوتات
+main_app = ApplicationBuilder().token("7566859808:AAHI0WzczJ2nDmuzRI-F-WzxyUS9SglkvwE").build()
+admin_app = ApplicationBuilder().token("8074752128:AAHkPJ1Acsk8i3l7X-IaeL2FhWGmYIbZzlg").build()
+
 # ==================== خطط الاشتراك ====================
 SUBSCRIPTION_PLANS = {
     "bronze": {"name": "🟤 الخطة البرونزية", "price": 100, "days": 3, "profits": "10% - 20%"},
@@ -825,7 +831,15 @@ def main():
     print("   📁 الأرشيف:", ARCHIVE_CHANNEL)
     print("   🚨 الأخطاء:", ERROR_CHANNEL)
     print("   💳 المحفظة:", WALLET_ADDRESS[:10] + "...")
-    
+
+# إضافة handlers للبوت الرئيسي
+main_app.add_handler(CommandHandler("start", start))
+main_app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), echo))
+
+# إضافة handlers لبوت الإدارة
+admin_app.add_handler(CommandHandler("admin", admin_command))
+
+
    # تشغيل البوتات
 try:
     # تشغيل البوت الرئيسي في thread منفصل
@@ -864,6 +878,7 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
