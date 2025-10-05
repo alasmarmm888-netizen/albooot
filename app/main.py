@@ -18,6 +18,15 @@ ARCHIVE_CHANNEL = "-1003178411340"
 ERROR_CHANNEL = "-1003091305351"
 WALLET_ADDRESS = "TYy5CnBE3kJ2b7oom3vPhey8PX5mi7GQhd"
 
+from telegram import Update
+from telegram.ext import ContextTypes
+
+# دالة للرد على أي رسالة نصية
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # يرد بنفس النص اللي أرسله المستخدم
+    if update.message:
+        await update.message.reply_text(update.message.text)
+
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 # تعريف البوتات
@@ -878,6 +887,7 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
