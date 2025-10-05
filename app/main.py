@@ -746,7 +746,6 @@ schedule.every().day.at("08:00").do(lambda: asyncio.run(send_daily_report()))
 
 # لتشغيل تقرير كل ساعة
 schedule.every().hour.do(lambda: asyncio.run(send_hourly_report()))
-    
     def run_scheduler():
         while True:
             schedule.run_pending()
@@ -859,5 +858,6 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
