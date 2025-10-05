@@ -741,7 +741,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 # ==================== التقارير التلقائية ====================
 def setup_scheduled_reports():
     """إعداد التقارير التلقائية"""
-    schedule.every().day.at("08:00").send_daily_report)
+    schedule.every().day.at("08:00").(send_daily_report)
     schedule.every().hour.send_hourly_report)
     
     def run_scheduler():
@@ -856,3 +856,4 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
