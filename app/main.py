@@ -841,6 +841,15 @@ def main():
     print("   🚨 الأخطاء:", ERROR_CHANNEL)
     print("   💳 المحفظة:", WALLET_ADDRESS[:10] + "...")
 
+
+from telegram import Update
+from telegram.ext import ContextTypes
+
+# أمر خاص ببوت الإدارة
+async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("☑️ أهلاً بك، هذا أمر الأدمن.")
+
+
 # إضافة handlers للبوت الرئيسي
 main_app.add_handler(CommandHandler("start", start))
 main_app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), echo))
@@ -887,6 +896,7 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
