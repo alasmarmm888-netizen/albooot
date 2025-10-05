@@ -859,43 +859,25 @@ admin_app.add_handler(CommandHandler("admin", admin_command))
 
 
    # تشغيل البوتات
-try:
-    # تشغيل البوت الرئيسي في thread منفصل
-    def run_main_bot():
-        loop = asyncio.new_event_loop()  # إنشاء loop جديد للـ thread
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(main_app.run_polling())
+import asyncio
 
-    # تشغيل بوت الإدارة في thread منفصل  
-    def run_admin_bot():
-        loop = asyncio.new_event_loop()  # إنشاء loop جديد للـ thread
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(admin_app.run_polling())
-
-    main_thread = Thread(target=run_main_bot, daemon=True)
-    admin_thread = Thread(target=run_admin_bot, daemon=True)
-
-    main_thread.start()
-    admin_thread.start()
-
+async def run_bots():
+    # تشغيل البوت الأساسي
+    main_task = asyncio.create_task(main_app.run_polling())
+    # تشغيل بوت الإدارة
+    admin_task = asyncio.create_task(admin_app.run_polling())
+    
     print("🎉 جميع البوتات شغالة الآن!")
     print("💡 البوت الرئيسي: للاستخدام العام")
     print("🛠️ بوت الإدارة: للتحكم والإدارة")
 
-    # إبقاء البرنامج شغال
-    while True:
-        time.sleep(1)
+    await asyncio.gather(main_task, admin_task)
 
-except KeyboardInterrupt:
-    print("⏹️ إيقاف النظام...")
-except Exception as e:
-    print(f"❌ خطأ في التشغيل: {e}")
-
-# ==================== التشغيل ====================
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    asyncio.run(run_bots())
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
