@@ -862,11 +862,15 @@ admin_app.add_handler(CommandHandler("admin", admin_command))
 import asyncio
 
 async def run_bots():
-    # تشغيل البوت الأساسي
+    # تشغيل البوت الرئيسي والأدمن معًا
     main_task = asyncio.create_task(main_app.run_polling())
-    # تشغيل بوت الإدارة
     admin_task = asyncio.create_task(admin_app.run_polling())
-    
+    await asyncio.gather(main_task, admin_task)
+
+
+
+
+
     print("🎉 جميع البوتات شغالة الآن!")
     print("💡 البوت الرئيسي: للاستخدام العام")
     print("🛠️ بوت الإدارة: للتحكم والإدارة")
@@ -877,6 +881,7 @@ if __name__ == "__main__":
     asyncio.run(run_bots())
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
