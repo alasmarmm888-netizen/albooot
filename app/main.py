@@ -878,9 +878,10 @@ async def run_bots():
     await asyncio.gather(main_task, admin_task)
 
 if __name__ == "__main__":
-    asyncio.run(run_bots())
-
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run_bots())
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
