@@ -741,8 +741,11 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 # ==================== التقارير التلقائية ====================
 def setup_scheduled_reports():
     """إعداد التقارير التلقائية"""
-    schedule.every().day.at("08:00").(send_daily_report)
-    schedule.every().hour.send_hourly_report)
+    # لتشغيل تقرير يومي الساعة 08:00 صباحاً
+schedule.every().day.at("08:00").do(lambda: asyncio.run(send_daily_report()))
+
+# لتشغيل تقرير كل ساعة
+schedule.every().hour.do(lambda: asyncio.run(send_hourly_report()))
     
     def run_scheduler():
         while True:
@@ -856,4 +859,5 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
 
