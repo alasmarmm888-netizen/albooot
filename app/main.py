@@ -746,10 +746,11 @@ schedule.every().day.at("08:00").do(lambda: asyncio.run(send_daily_report()))
 
 # لتشغيل تقرير كل ساعة
 schedule.every().hour.do(lambda: asyncio.run(send_hourly_report()))
-    def run_scheduler():
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
+
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
     
     # تشغيل السcheduler في thread منفصل
     scheduler_thread = Thread(target=run_scheduler, daemon=True)
@@ -858,6 +859,7 @@ if __name__ == '__main__':
     main()
 
 # ==================== نهاية الكود الكامل ====================
+
 
 
 
